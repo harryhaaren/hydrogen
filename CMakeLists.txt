@@ -59,6 +59,10 @@ ELSE()
 	OPTION(WANT_OSS          "Include OSS (Open Sound System) support" OFF)
 ENDIF()
 
+OPTION(WANT_NSMSESSION   "Enable NSM Session integration" ON)
+
+OPTION(WANT_OSS          "Include OSS (Open Sound System) support" OFF)
+
 OPTION(WANT_ALSA         "Include ALSA (Advanced Linux Sound Architecture) support" ON)
 OPTION(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
 OPTION(WANT_PORTAUDIO    "Include PortAudio support" OFF)
@@ -169,9 +173,14 @@ FIND_HELPER(LIBARCHIVE archive archive.h archive)
 IF( WANT_LIBARCHIVE AND LIBARCHIVE_FOUND)
     SET(WANT_LIBTAR FALSE)
 ENDIF()
+
+# there is none: its included
+SET(NSMSESSION_INCLUDE_DIR "./")
+
 FIND_HELPER(LIBSNDFILE sndfile sndfile.h sndfile)
 FIND_HELPER(ALSA alsa alsa/asoundlib.h asound )
 FIND_LADSPA(LADSPA ladspa.h noise)
+<<<<<<< HEAD
 
 IF("${CMAKE_SYSTEM_NAME}" MATCHES "NetBSD")
 	FIND_HELPER(OSS oss sys/soundcard.h ossaudio )
@@ -179,6 +188,10 @@ ELSE()
 	FIND_HELPER(OSS oss sys/soundcard.h OSSlib )
 ENDIF()
 
+=======
+FIND_HELPER(NSMSESSION lo "" lo)
+FIND_HELPER(OSS oss sys/soundcard.h OSSlib )
+>>>>>>> -Initial NSM attempt
 FIND_HELPER(JACK jack jack/jack.h jack)
 FIND_HELPER(JACKSESSION jack jack/session.h jack)
 IF(APPLE)
@@ -267,6 +280,7 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}OSS${reset}                          : ${OSS_STATUS}
 * ${purple}JACK${reset}                         : ${JACK_STATUS}
 * ${purple}JACKSESSION${reset}                  : ${JACKSESSION_STATUS}
+* ${purple}NSM Session${reset}                  : ${NSMSESSION_STATUS}
 * ${purple}CoreAudio${reset}                    : ${COREAUDIO_STATUS}
 * ${purple}CoreMidi${reset}                     : ${COREMIDI_STATUS}
 * ${purple}PortAudio${reset}                    : ${PORTAUDIO_STATUS}

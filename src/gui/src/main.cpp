@@ -38,6 +38,12 @@
 #include <jack/session.h>
 #endif
 
+#define H2CORE_HAVE_NSMSESSION
+
+#ifdef H2CORE_HAVE_NSMSESSION
+#include "nsm.h"
+#endif
+
 #include <hydrogen/midi_map.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
@@ -151,6 +157,52 @@ static int setup_unix_signal_handlers()
 #endif
 }
 
+static int nsm_update(void* data)
+{
+  printf("in nsm_update() \n");
+  
+  printf("main form pointer in nsm_update() %i\n", data );
+  MainForm* mf = (MainForm*) data;
+  
+  //nsm_check_nowait( mf->getNsm() );
+  
+}
+
+static int nsm_open_cb (const char *name,
+                        const char *display_name,
+                        const char *client_id,
+                        char **out_msg,
+                        void *userdata )
+{
+  MainForm* mf = (MainForm*)userdata;
+  
+  // setup JACK here, client_id is the JACK client name
+  
+  // load the NSM provided directory
+  printf("hydrogen nsm_open_cb, name: %s, display_name %s, client_id: %s\n");
+  
+  // "name" is the name of the session folder in the NSM directory.
+  mf->openSongFile( name );
+  
+  // store the save() directory for later
+  
+  return ERR_OK;
+}
+
+static int nsm_save_cb ( char **out_msg, void *userdata )
+{
+  MainForm* mf = (MainForm*)userdata;
+  
+  // open() set the directory to save() into, just save
+  //saveSession();
+  
+  printf("NSM calling hydrogen action_file_save() now\n");
+  mf->action_file_save();
+  
+  return ERR_OK;
+}
+
+
 int main(int argc, char *argv[])
 {
 	try {
@@ -174,11 +226,11 @@ int main(int argc, char *argv[])
 		// Deal with the options
 		QString songFilename;
 #ifdef H2CORE_HAVE_JACKSESSION
-                QString sessionId;
+		QString sessionId;
 #endif
 		QString playlistFilename;
 		bool bNoSplash = false;
-        QString sys_data_path;
+		QString sys_data_path;
 		QString sSelectedDriver;
 		bool showVersionOpt = false;
 		unsigned logLevelOpt = H2Core::Logger::Error;
@@ -431,6 +483,56 @@ int main(int argc, char *argv[])
 				___ERRORLOG ( "Error loading the drumkit" );
 			}
 		}
+
+
+#ifdef H2CORE_HAVE_NSMSESSION
+	// NSM stuff
+	nsm_client_t* nsm = 0;
+	
+	const char *nsm_url = getenv( "NSM_URL" );
+	
+	if ( nsm_url )
+	{
+		printf("NSM URL from env-var : %s\n", nsm_url);
+		
+		nsm = nsm_new();
+		
+		if ( nsm )
+		{
+			nsm_set_open_callback( nsm, nsm_open_cb, (void*)pMainForm );
+			nsm_set_save_callback( nsm, nsm_save_cb, (void*)pMainForm );
+			
+			if ( nsm_init( nsm, nsm_url ) == 0 )
+			{
+				nsm_send_announce( nsm, "Hydrogen", "", argv[0] );
+				printf("Announcing to NSM\n");
+				nsm_check_wait( nsm, 10000 );
+				printf("Back from check_wait()\n");
+				
+        printf("main form pointer in main() %i\n", pMainForm );
+        
+				QTimer *timer = new QTimer(pMainForm);
+				QTimer::connect( timer, SIGNAL( timeout() ), pMainForm, SLOT( nsm_update( pMainForm ) ) );
+				timer->start(100);
+			}
+			else
+			{
+				printf("nsm_new() failed, freeing client\n");
+				nsm_free( nsm );
+				nsm = 0;
+			}
+		}
+		else
+		{
+			
+		}
+	}
+	else
+	{
+		printf("No NSM URL available: no NSM management\n");
+	}
+#endif
+
 
 		pQApp->exec();
 

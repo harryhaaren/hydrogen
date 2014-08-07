@@ -964,6 +964,14 @@ void MainForm::action_window_showDrumkitManagerPanel()
 }
 
 
+void MainForm::nsm_update( )
+{
+  //printf("main form pointer in nsm_update() %i\n", data );
+  //MainForm* mf = (MainForm*) data;
+  
+  //nsm_check_nowait( mf->getNsm() );
+}
+
 
 
 void MainForm::closeAll() {

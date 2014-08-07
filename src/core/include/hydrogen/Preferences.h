@@ -578,6 +578,15 @@ public:
 			return waitingForSessionHandler;
 		}
 
+#ifdef H2CORE_HAVE_NSMSESSION
+    QString getNsmJackClientName() {
+      return nsmJackClientName;
+    }
+    void setNsmJackClientName( QString name ) {
+      nsmJackClientName = name;
+    }
+#endif
+
 #ifdef H2CORE_HAVE_JACKSESSION
 		QString getJackSessionUUID(){
 			return jackSessionUUID;
@@ -656,6 +665,10 @@ private:
 	int punchOutPos;
 	QString m_sLastNews;
 	int maxBars;
+#ifdef H2CORE_HAVE_NSMSESSION
+		QString nsmJackClientName;
+#endif
+
 #ifdef H2CORE_HAVE_JACKSESSION
 		QString jackSessionUUID;
 		QString jackSessionApplicationPath;

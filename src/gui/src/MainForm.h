@@ -16,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA	02111-1307	USA
  *
  */
 
@@ -42,7 +42,7 @@ class QUndoView;///debug only
 ///
 class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 {
-    H2_OBJECT
+		H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -118,6 +118,11 @@ public slots:
 		void action_toggle_input_mode();
 
 		void handleSigUsr1();
+		
+		void nsm_update();
+		
+		// Used by NSM, for opening a session by filename
+		void openSongFile( const QString& sFilename );
 
 	private slots:
 		void onAutoSaveTimer();
@@ -154,11 +159,10 @@ public slots:
 		void createMenuBar();
 
 		void closeAll();
-		void openSongFile( const QString& sFilename );
 
 		bool eventFilter( QObject *o, QEvent *e );
 
-		std::map<int,int>  keycodeInstrumentMap;
+		std::map<int,int>	keycodeInstrumentMap;
 		void initKeyInstMap();
 
 		QString getAutoSaveFilename();
@@ -167,7 +171,7 @@ public slots:
 	#endif
 		QUndoView *undoView;///debug only
 
-                bool handleSelectNextPrevSongOnPlaylist(int step);
+		bool handleSelectNextPrevSongOnPlaylist(int step);
 
 };
 
